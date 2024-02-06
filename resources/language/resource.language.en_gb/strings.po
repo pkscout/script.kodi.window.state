@@ -1,0 +1,36 @@
+# script.kodi.window.state language file
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+
+#: Settings Heading
+msgctxt "#32000"
+msgid "General"
+msgstr ""
+
+#: Settings
+msgctxt "#32100"
+msgid "Enable debug logging"
+msgstr ""
+
+#: Settings
+msgctxt "#32103"
+msgid "Home Assistant address"
+msgstr ""
+
+#: Settings
+msgctxt "#32108"
+msgid "Home Assistant port"
+msgstr ""
+
+#: Settings
+msgctxt "#32109"
+msgid "Home Assistant Token"
+msgstr ""
+
+#: Settings
+msgctxt "#32112"
+msgid "Use secure connection to Home Assistant"
+msgstr ""
