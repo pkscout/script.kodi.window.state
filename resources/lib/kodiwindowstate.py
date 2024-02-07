@@ -1,6 +1,8 @@
 import xbmc
 import json
 import os
+import re
+from resources.lib import url
 from resources.lib.xlogger import Logger
 from resources.lib.kwssettings import loadSettings
 
@@ -52,24 +54,42 @@ class kwsMonitor(xbmc.Monitor):
         self.SETTINGS = loadSettings()
         self.KODIPLAYER = xbmc.Player()
         self.KEEPCHECKING = False
+        sensor_id = re.sub('[^0-9a-zA-Z]+', '_', os.uname()[1]).lower()
+        headers = {}
+        headers['Content-Type'] = 'application/json'
+        headers['Accept'] = 'application/json'
+        headers['Authorization'] = 'Bearer %s' % self.SETTINGS['ha_token']
+        self.JSONURL = url.URL('json', headers=headers)
+        self.RESTURL = 'http://%s:%s/api/states/binary_sensor.%s_fullscreen_front' % (
+            self.SETTINGS['ha_ip'], self.SETTINGS['ha_port'], sensor_id)
         self.LW.log(['the settings are:', self.SETTINGS])
         self.LW.log(['initialized variables'])
 
     def _check_window_state(self):
         self.LW.log(['started checking of window ID since playback started'])
         old_window_id = self._get_window_id()
-        self.LW.log(['sending window id of %s to Home Assistant' %
-                    str(old_window_id)])
+        self._send_playing_front_state(old_window_id)
         while self.KEEPCHECKING and not self.abortRequested():
             current_window_id = self._get_window_id()
             if (current_window_id != old_window_id):
+                self._send_playing_front_state(current_window_id)
                 old_window_id = current_window_id
-                self.LW.log(['sending window id of %s to Home Assistant' %
-                             str(old_window_id)])
             self.waitForAbort(1)
+        self._send_playing_front_state(0)
         self.LW.log(['ended checking of window ID since playback stopped'])
 
     def _get_window_id(self):
         response = xbmc.executeJSONRPC(
             '{"jsonrpc":"2.0","method":"GUI.GetProperties","params":{"properties":["currentwindow"]},"id":1}')
         return json.loads(response).get('result', {}).get('currentwindow', {}).get('id', [])
+
+    def _send_playing_front_state(self, window_id):
+        self.LW.log(['got new window id of %s' % str(window_id)])
+        payload = {}
+        if window_id == 12005 or window_id == 12006:
+            payload['state'] = 'on'
+        else:
+            payload['state'] = 'off'
+        status, loglines, results = self.JSONURL.Post(
+            self.RESTURL, data=json.dumps(payload))
+        self.LW.log(loglines)
