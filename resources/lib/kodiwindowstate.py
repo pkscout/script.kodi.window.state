@@ -68,27 +68,27 @@ class kwsMonitor(xbmc.Monitor):
 
     def _check_window_state(self):
         self.LW.log(['started checking of window ID since playback started'])
-        old_window_id, old_dialog_id = self._get_window_id()
-        self._send_playing_front_state(old_window_id, old_dialog_id)
+        old_window_id = self._get_window_id()
+        self._send_playing_front_state(old_window_id)
         while self.KEEPCHECKING and not self.abortRequested():
-            current_window_id, current_dialog_id = self._get_window_id()
-            if (current_window_id != old_window_id or current_dialog_id != old_dialog_id):
-                self._send_playing_front_state(
-                    current_window_id, current_dialog_id)
+            current_window_id = self._get_window_id()
+            if current_window_id != old_window_id:
+                self._send_playing_front_state(current_window_id)
                 old_window_id = current_window_id
-                old_dialog_id = current_dialog_id
             self.waitForAbort(1)
-        self._send_playing_front_state(0, 0)
+        self._send_playing_front_state(0)
         self.LW.log(['ended checking of window ID since playback stopped'])
 
     def _get_window_id(self):
-        return xbmcgui.getCurrentWindowId(), xbmcgui.getCurrentWindowDialogId()
+        id = xbmcgui.getCurrentWindowDialogId()
+        if id == 9999:
+            id = xbmcgui.getCurrentWindowId()
+        return id
 
-    def _send_playing_front_state(self, window_id, dialog_id):
-        self.LW.log(['got window id of %s and dialog id of %s' %
-                    (str(window_id), str(dialog_id))])
+    def _send_playing_front_state(self, window_id):
+        self.LW.log(['got window id of %s' % str(window_id)])
         payload = {}
-        if (window_id == 12005 or window_id == 12006) and dialog_id == 9999:
+        if window_id == 12005 or window_id == 12006:
             payload['state'] = 'on'
         else:
             payload['state'] = 'off'
