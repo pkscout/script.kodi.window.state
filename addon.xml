@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.kodi.window.state" name="Kodi Window State" version="1.0.1" provider-name="pkscout">
+<addon id="script.kodi.window.state" name="Kodi Window State" version="1.0.2" provider-name="pkscout">
 	<requires>
         <import addon="xbmc.python" version="3.0.0" />
 		<import addon="script.module.requests" version="2.22.0+matrix.1" />
@@ -7,8 +7,9 @@
 	<extension point="xbmc.service" library="service.py" />
 	<extension point="xbmc.addon.metadata">
 		<news>
-v.1.0.1
-- change from JSON call to xbmcgui to get window state
+v.1.0.2
+- updated logic for getting window ID
+- only send state to HA when state actually changes
 		</news>
 		<assets>
 			<icon>icon.png</icon>

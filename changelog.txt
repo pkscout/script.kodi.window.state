@@ -1,2 +1,9 @@
+v.1.0.2
+updated logic for getting window ID
+only send state to HA when state actually changes
+
+v.1.0.1
+change from JSON call to xbmcgui to get window state
+
 v.1.0.0
 initial release
