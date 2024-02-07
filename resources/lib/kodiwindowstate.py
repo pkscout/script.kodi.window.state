@@ -55,6 +55,8 @@ class kwsMonitor(xbmc.Monitor):
         self.SETTINGS = loadSettings()
         self.KODIPLAYER = xbmc.Player()
         self.KEEPCHECKING = False
+        self.FULLSCREENSTATE = 'off'
+        self.OLDFULLSCREENSTATE = 'off'
         sensor_id = re.sub('[^0-9a-zA-Z]+', '_', os.uname()[1]).lower()
         headers = {}
         headers['Content-Type'] = 'application/json'
@@ -69,11 +71,11 @@ class kwsMonitor(xbmc.Monitor):
     def _check_window_state(self):
         self.LW.log(['started checking of window ID since playback started'])
         old_window_id = self._get_window_id()
-        self._send_playing_front_state(old_window_id)
+        self._set_fullscreen_state(old_window_id)
         while self.KEEPCHECKING and not self.abortRequested():
             current_window_id = self._get_window_id()
             if current_window_id != old_window_id:
-                self._send_playing_front_state(current_window_id)
+                self._set_fullscreen_state(current_window_id)
                 old_window_id = current_window_id
             self.waitForAbort(1)
         self._send_playing_front_state(0)
@@ -85,13 +87,15 @@ class kwsMonitor(xbmc.Monitor):
             id = xbmcgui.getCurrentWindowId()
         return id
 
-    def _send_playing_front_state(self, window_id):
+    def _set_fullscreen_state(self, window_id):
         self.LW.log(['got window id of %s' % str(window_id)])
-        payload = {}
         if window_id == 12005 or window_id == 12006:
-            payload['state'] = 'on'
+            self.FULLSCREENSTATE = 'on'
         else:
-            payload['state'] = 'off'
-        status, loglines, results = self.JSONURL.Post(
-            self.RESTURL, data=json.dumps(payload))
-        self.LW.log(loglines)
+            self.FULLSCREENSTATE = 'off'
+        if self.OLDFULLSCREENSTATE != self.FULLSCREENSTATE:
+            payload = {'state': self.FULLSCREENSTATE}
+            status, loglines, results = self.JSONURL.Post(
+                self.RESTURL, data=json.dumps(payload))
+            self.LW.log(loglines)
+            self.OLDFULLSCREENSTATE = self.FULLSCREENSTATE
