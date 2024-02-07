@@ -1,3 +1,6 @@
+v.1.0.3
+fix for status not changing to off when playback stops
+
 v.1.0.2
 updated logic for getting window ID
 only send state to HA when state actually changes
