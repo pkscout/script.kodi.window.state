@@ -63,7 +63,9 @@ class kwsMonitor(xbmc.Monitor):
         headers['Accept'] = 'application/json'
         headers['Authorization'] = 'Bearer %s' % self.SETTINGS['ha_token']
         self.JSONURL = url.URL('json', headers=headers)
-        self.RESTURL = 'http://%s:%s/api/states/binary_sensor.%s_fullscreen_front' % (
+        self.FS_RESTURL = 'http://%s:%s/api/states/binary_sensor.%s_fullscreen_front' % (
+            self.SETTINGS['ha_ip'], self.SETTINGS['ha_port'], sensor_id)
+        self.FI_RESTURL = 'http://%s:%s/api/states/binary_sensor.%s_fullinfo_front' % (
             self.SETTINGS['ha_ip'], self.SETTINGS['ha_port'], sensor_id)
         self.LW.log(['the settings are:', self.SETTINGS])
         self.LW.log(['initialized variables'])
@@ -89,13 +91,22 @@ class kwsMonitor(xbmc.Monitor):
 
     def _set_fullscreen_state(self, window_id):
         self.LW.log(['got window id of %s' % str(window_id)])
-        if window_id == 12005 or window_id == 12006:
+        fullscreen_windows = '12005|12006'
+        fullscreen_infos = '10116|10608|12901|10120|10142'
+        if str(window_id) in fullscreen_windows:
             self.FULLSCREENSTATE = 'on'
         else:
             self.FULLSCREENSTATE = 'off'
+        if str(window_id) in fullscreen_infos:
+            fullinfostate = 'on'
+        else:
+            fullinfostate = 'off'
         if self.OLDFULLSCREENSTATE != self.FULLSCREENSTATE:
-            payload = {'state': self.FULLSCREENSTATE}
-            status, loglines, results = self.JSONURL.Post(
-                self.RESTURL, data=json.dumps(payload))
-            self.LW.log(loglines)
+            self._send(self.FS_RESTURL, self.FULLSCREENSTATE)
+            self._send(self.FI_RESTURL, fullinfostate)
             self.OLDFULLSCREENSTATE = self.FULLSCREENSTATE
+
+    def _send(self, theurl, state):
+        status, loglines, results = self.JSONURL.Post(
+            theurl, data=json.dumps({'state': state}))
+        self.LW.log(loglines)

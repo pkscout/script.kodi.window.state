@@ -1,3 +1,6 @@
+v.1.0.4
+added sensor for full info screens
+
 v.1.0.3
 fix for status not changing to off when playback stops
 
