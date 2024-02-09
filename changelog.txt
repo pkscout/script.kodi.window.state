@@ -1,3 +1,6 @@
+v.1.0.5
+fix for sensor not resetting when playback stops
+
 v.1.0.4
 added sensor for full info screens
 

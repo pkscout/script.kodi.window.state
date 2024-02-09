@@ -80,7 +80,7 @@ class kwsMonitor(xbmc.Monitor):
                 self._set_fullscreen_state(current_window_id)
                 old_window_id = current_window_id
             self.waitForAbort(1)
-        self._set_fullscreen_state(0)
+        self._set_fullscreen_state(9999)
         self.LW.log(['ended checking of window ID since playback stopped'])
 
     def _get_window_id(self):
